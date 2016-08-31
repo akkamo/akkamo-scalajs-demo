@@ -1,0 +1,1 @@
+# akkamo-scalajs-demo
