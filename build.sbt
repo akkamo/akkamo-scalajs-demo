@@ -20,7 +20,18 @@ lazy val root = project.in(file(".")).settings(
   managedClasspath in Runtime += (packageBin in Assets).value,
   compile in Compile <<= (compile in Compile) dependsOn scalaJSPipeline
 
-).dependsOn(scalaJs).aggregate(scalaJs).enablePlugins(AkkamoSbtPlugin, SbtWeb, JavaAppPackaging)
+).dependsOn(scalaJs).aggregate(scalaJs, sharedJVM, sharedJS).enablePlugins(AkkamoSbtPlugin, SbtWeb, JavaAppPackaging)
 
 lazy val scalaJs = project.in(file("scalajs")).settings(
-).enablePlugins(ScalaJSPlugin, ScalaJSWeb)
+  libraryDependencies ++= Seq(
+    "org.scala-js" %%% "scalajs-dom" % "0.9.0"
+  )
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb).dependsOn(sharedJS)
+
+lazy val shared = crossProject.crossType(CrossType.Pure).in(file("shared")).settings(
+
+).jsConfigure(_ enablePlugins ScalaJSPlugin)
+
+lazy val sharedJVM = shared.jvm.settings(name := "sharedJVM")
+
+lazy val sharedJS = shared.js.settings(name := "sharedJS")
